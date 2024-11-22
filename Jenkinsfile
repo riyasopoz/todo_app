@@ -1,6 +1,9 @@
 pipeline {
     agent { label 'first_agent' }  // Set the default agent for the entire pipeline
-    
+    environment {
+    imagename = "rputhenp/todo_app"
+    registryCredential = "dckr_pat_-hcKOHALXdg9FHJPc1Z2PHrhqtM"
+    }
     stages {
         stage('Clone repository') {
             steps {
@@ -9,15 +12,43 @@ pipeline {
             }
         }
         
-        stage('Build image') {
+        stage('Build docker image') {
             steps {
                 script {
-                    sh "docker build ${env.WORKSPACE} -t todoapp:jenkins"
+                    dockerImage = docker.build imagename
                 }
             }
         }
         
-        stage('Test image') {
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                    dockerImage.push("$BUILD_NUMBER")
+                    dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+         
+        stage('Remove Unused docker image') {
+            steps{
+                sh "docker rmi $imagename:$BUILD_NUMBER"
+                sh "docker rmi $imagename:latest"
+            }
+        }
+
+        stage('Start Container') {
+            steps {
+                script {
+                sh "docker stop $imagename || true"
+                sh "docker rm $imagename || true"
+                sh "docker run -d --name todocontainer -p 8080:8080 $imagename:$BUILD_NUMBER"
+                }
+            }
+        }
+   
+        stage('Run test script on the app') {
             steps {
                 script {
                     // Run tests inside the Docker container.
@@ -29,16 +60,6 @@ pipeline {
             }
         }
         
-        stage('Push image') {
-            steps {
-                script {
-                    // Authenticate with Docker Hub and push the built image, tagging it with the current build number.
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        push("${env.BUILD_NUMBER}")  // Push the image with a tag matching the build number
-                    }
-                }
-            }
-        }
         
 
     }
