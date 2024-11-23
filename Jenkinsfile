@@ -2,7 +2,8 @@ pipeline {
     agent { label 'first_agent' }  // Set the default agent for the entire pipeline
     environment {
     imagename = "rputhenp/todo_app"
-    registryCredential = "dckr_pat_-hcKOHALXdg9FHJPc1Z2PHrhqtM"
+    registryCredential = "riyas-dockerhub"
+    dockerImage = ''
     }
     stages {
         stage('Clone repository') {
