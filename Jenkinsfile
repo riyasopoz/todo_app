@@ -44,7 +44,7 @@ pipeline {
                 script {
                 sh "docker stop $imagename || true"
                 sh "docker rm $imagename || true"
-                sh "docker run -d --name todocontainer -p 8080:8080 $imagename:$BUILD_NUMBER"
+                sh "docker run -d --name todocontainer -p 8080:8090 $imagename:$BUILD_NUMBER"
                 }
             }
         }
