@@ -2,7 +2,7 @@ pipeline {
     agent { label 'first_agent' }  // Set the default agent for the entire pipeline
     environment {
     imagename = "rputhenp/todo_app"
-    registryCredential = "riyas-dockerhub"
+    registryCredential = "e74efcea-4e27-439c-b556-4a6bc0201554"
     dockerImage = ''
     }
     stages {
@@ -16,7 +16,8 @@ pipeline {
         stage('Build docker image') {
             steps {
                 script {
-                    dockerImage = docker.build imagename
+                    //building the docker image with build number as tag
+                    dockerImage = docker.build("$imagename:$BUILD_NUMBER")
                 }
             }
         }
@@ -24,27 +25,28 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
+                    //Pushing the image to dockerhub
                     docker.withRegistry('', registryCredential) {
-                    dockerImage.push("$BUILD_NUMBER")
-                    dockerImage.push('latest')
+                        dockerImage.push("$BUILD_NUMBER")
                     }
                 }
             }
         }
-         
         stage('Remove Unused docker image') {
             steps{
+                //removing unused images
                 sh "docker rmi $imagename:$BUILD_NUMBER"
-                sh "docker rmi $imagename:latest"
             }
-        }
+        } 
 
         stage('Start Container') {
             steps {
                 script {
-                sh "docker stop $imagename || true"
-                sh "docker rm $imagename || true"
-                sh "docker run -d --name todo_app_$BUILD_NUMBER -p 8081:8090 $imagename:$BUILD_NUMBER"
+                    //running the container using the image
+                def containername = "todo_app_container"
+                sh "docker stop $containername || true"
+                sh "docker rm $containername || true"
+                sh "docker run -d --name $containername $imagename:$BUILD_NUMBER"
                 }
             }
         }
@@ -52,14 +54,10 @@ pipeline {
         stage('Run test script on the app') {
             steps {
                 script {
-                    // Run tests inside the Docker container.
-                    // The app.inside block runs commands inside a container based on the built image.
-                    inside {
-                        sh 'echo "Tests passed"'  // Placeholder for actual tests; replace with real test commands
-                    }
+                    sh "docker exec -it $containername whoami"
                 }
             }
-        }     
+        }
 
     }
 }
