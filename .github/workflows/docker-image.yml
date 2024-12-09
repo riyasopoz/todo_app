@@ -1,0 +1,26 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+ # pull_request:
+  #  branches: [ "main" ]
+
+jobs:
+
+  build:
+   
+    runs-on: ubuntu-latest
+
+    steps:
+     # Checkout the repo code
+    - uses: actions/checkout@v4
+
+    - name: Log in to docker hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+    
+    - name: Build the docker image
+      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/todo_app:$(date +%s)
+
+    - name: Push the docker image to docker hub
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/todo_app:$(date +%s)
