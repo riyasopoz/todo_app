@@ -20,7 +20,7 @@ jobs:
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
     
     - name: Build the docker image
-      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/todo_app:$(date +%s)
+      run: docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/todo_app:latest
 
     - name: Push the docker image to docker hub
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/todo_app:$(date +%s)
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/todo_app:latest
