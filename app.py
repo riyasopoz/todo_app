@@ -4,10 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 # Load environment variables
-POSTGRES_USER = os.getenv('POSTGRES_USER')
-POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
-POSTGRES_DB = os.getenv('POSTGRES_DB')
-POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+#POSTGRES_USER = os.getenv('POSTGRES_USER')
+#POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+#POSTGRES_DB = os.getenv('POSTGRES_DB')
+#POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+
+POSTGRES_USER = "dbadmin"
+POSTGRES_PASSWORD = "admin123!"
+POSTGRES_DB = "postgres"
+POSTGRES_HOST = "todoappserver.postgres.database.azure.com"
 
 # Initialize Flask app and configure the database URI
 app = Flask(__name__)
